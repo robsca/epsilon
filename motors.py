@@ -47,4 +47,3 @@ def move_motor(channel, angle):
     # Move servo!
     pwm.set_pwm(channel, 0, angle)
     # close the connection
-    pwm.set_pwm(channel, 0, 0)

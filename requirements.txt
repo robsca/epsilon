@@ -1,2 +1,5 @@
 Adafruit_PCA9685
-pygame
+plotly
+numpy
+dash
+dash_bootstrap_components

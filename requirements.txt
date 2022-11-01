@@ -1,5 +1,2 @@
 Adafruit_PCA9685
 plotly
-numpy
-dash
-dash_bootstrap_components

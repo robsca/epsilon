@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
+from motors import move_motor
+
 # create a window
 window = tk.Tk()
 window.title("Epsilon-bot")
@@ -43,6 +45,16 @@ def click():
     testing_motors.grid_remove()
     motor_test()
     
+def demonstration():
+    print('demonstration mode')
+    # ask the user for the coordinates
+    x = 3
+    y = 3
+    z = 4
+    from sol import inverse_kinematics
+    s, e = inverse_kinematics(x, y, z)
+    return s, e
+
 # create function that returns the pressed_key
 def pressed_key(event):
     pressed_key = event.char
@@ -50,11 +62,21 @@ def pressed_key(event):
     channels = [f'{i}' for i in range(16)]
     if pressed_key in channels:
         print("Channel: ", pressed_key)
+    if pressed_key == 'a':
+        s, e = demonstration()
+        print(s, e)
+        shoulder = 0
+        elbow = 1
+        move_motor(shoulder, s)
+        move_motor(elbow, e)
+        
     elif pressed_key == 'q':
         print("Quit")
         window.destroy()
     else:
         print("Invalid key: Not a channel")
+
+    
 
 def run():
     # run 

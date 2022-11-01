@@ -37,7 +37,7 @@ class robot:
     def get_angles(self):
         pass
 
-    def show(self):
+    def show(self, cookie = None):
         coords = self.get_coords()
         df = pd.DataFrame(coords, columns=['x', 'y', 'z'])
         fig = px.scatter_3d(df, x='x', y='y', z='z' )
@@ -52,6 +52,17 @@ class robot:
                             (x=[segment.motor1.x, segment.motor2.x], y=[segment.motor1.y, segment.motor2.y], z=[segment.motor1.z, segment.motor2.z], 
                             color_discrete_sequence=[segment.color],
                             ).data[0])
+        if cookie:
+            # add trace
+            x = cookie.x
+            y = cookie.y
+            fig.add_trace(px.line_3d
+                            (x=[x[0], x[1]], y=[y[0], y[1]], z=[0, 0],
+                            color_discrete_sequence=['red'],
+                            ).data[0])
+        fig.show()
+
+
         #fig.show()
         return fig
 

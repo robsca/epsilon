@@ -1,49 +1,59 @@
-from __future__ import division
-import time
-# Import the PCA9685 module.
-import Adafruit_PCA9685
+from time import *
+from adafruit_servokit import ServoKit
 
-# Initialise the PCA9685 using the default address (0x40).
-pwm = Adafruit_PCA9685.PCA9685()
-# Set frequency to 60hz, good for servos.
-pwm.set_pwm_freq(60)
+class motor:
+    def __init__(self, name, kit, channel, range_motion = 180, angle_to_init = 75):
+        self.channel = channel
+        self.name = name
+        self.kit = kit
+        self.range_motion = [i for i in range(range_motion)]
+        self.angle_to_init = angle_to_init
+        self.kit.servo[channel].angle = angle_to_init
+        self.angle = angle_to_init
 
-# Configure min and max servo pulse lengths
-servo_min = 150  # Min pulse length out of 4096
-servo_max = 600  # Max pulse length out of 4096
+    def move(self, angle):
+        print('moving {} to {}'.format(self.name, angle))
+        if angle in self.range_motion:
+            self.kit.servo[self.channel].angle = angle
+            self.angle = angle
+        else:
+            print("Angle not in range")
+    
+    def move_to_init(self):
+        print('moving {} to init - {}'.format(self.name, self.angle_to_init))
+        self.kit.servo[self.channel].angle = self.angle_to_init
+        self.angle = self.angle_to_init
 
-def move_motor_from_max_to_min(channel):
-    try:
-        # Move servo!
-        pwm.set_pwm(channel, 0, servo_max)
-        time.sleep(1)
-        pwm.set_pwm(channel, 0, servo_min)
-    except:
-        print('Function move_motor received a input that isnt a motor number.')
+    def move_to_max(self):
+        self.kit.servo[self.channel].angle = self.range_motion[-1]
+        self.angle = self.range_motion[-1]
 
-def controller_move_motors_n():
-    import pygame
-    clock = pygame.time.Clock()
-    run = True
-    while run:
-        clock.tick(60)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run  = False
-            if event.type == pygame.KEYDOWN:
-                channel = pygame.key.name(event.key)
-                channel = int(channel)
-                print(channel)
 
-                try:
-                    # Move servo!
-                    pwm.set_pwm(channel, 0, servo_max)
-                    time.sleep(1)
-                    pwm.set_pwm(channel, 0, servo_min)
-                except:
-                    print('Not a motor plug')
-            
-def move_motor(channel, angle):
-    # Move servo!
-    pwm.set_pwm(channel, 0, angle)
-    # close the connection
+class Robot:
+    def __init__(self, name, motors):
+        self.name = name
+        self.motors = motors
+        self.motor_names = [motor.name for motor in motors]
+        self.motor_dict = {motor.name : motor for motor in motors}
+
+    def move_to_init(self):
+        for motor in self.motors:
+            motor.move_to_init()
+
+    def move_motor(self, motor_name, angle):
+        if motor_name in self.motor_names:
+            self.motor_dict[motor_name].move(angle)
+        else:
+            print('Motor not found')
+
+
+if __name__ == '__main__':
+    kit = ServoKit(channels=16)
+    base = motor('base', kit, 0)
+    shoulder = motor('shoulder', kit, 1)
+    elbow = motor('elbow', kit, 2)
+    wrist = motor('wrist', kit, 3)
+    gripper = motor('gripper', kit, 4, range_motion=55, angle_to_init=0)
+    motors = [base, shoulder, elbow, wrist, gripper]
+    robot = Robot('robot', motors)
+    robot.move_to_init()

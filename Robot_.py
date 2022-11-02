@@ -41,7 +41,7 @@ class Robot:
         self.motor_dict = {motor.name : motor for motor in motors}
         self.kit = kit
 
-    def move_to_init(self):
+    def initialize(self):
         for motor in self.motors:
             motor.move_to_init()
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     motors = [base, body1, body2, body3, head, gripper]    
     robot = Robot('robot', kit, motors)
     
-    robot.move_to_init()
+    robot.initialize()
     print('Done')
     
     

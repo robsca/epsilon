@@ -1,48 +1,78 @@
-
-'''
-this software takes 6 inputs and return the sum of the inputs
-'''
-from robot import robot
 import tkinter as tk
+from Robot_ import robot, motors
 
 # create a window
 window = tk.Tk()
 window.title('epsilon')
-window.geometry('500x500')
+window.geometry('600x600')
+# 1. Initialization
+def button_for_initialization():
+    # create a button for initialization
+    initialization_ = tk.Button(window, text='Initialize', command=initialization)
+    initialization_.grid(row = 0, column = 1)
 
+def initialization():
+    robot.initialize()
+    print('Initialization completed')
+
+# 2. Calibration
+def button_for_calibration():
+    # create a button for calibration
+    calibration_ = tk.Button(window, text='Calibrate', command=calibration)
+    calibration_.grid(row = 0,column = 2)
+
+def calibration():
+    # get all the values from the sliders
+    def get_values():
+        values = [slider.get() for slider in sliders]
+        motors_to_modify = [[motor.name, value] for motor, value in zip(motors, values) if motor.angle != value]
+        
+        for motor in motors_to_modify:
+            robot.move_motor(motor[0], motor[1])
+            
+    button = tk.Button(window, text='Move angles', command=get_values)
+    button.grid(row = 10, column = 2)
+
+# main_loop
 # create a label for all the angles
-label = tk.Label(window, text='Enter the angles')
-label.pack()
 
-from 
-# create a entry for the channel
-entry1 = tk.Entry(window)
-entry1.pack()
-
-label1 = tk.Label(window, text='Angle 1')
-label1.pack()
-# then the slider
-slider1 = tk.Scale(window, from_=0, to=180, orient=tk.HORIZONTAL)
-slider1.pack()
+    
 
 
-# create a function to sum the inputs
-def sum():
-    # get the values from the sliders
-    value1 = slider1.get()
-    value2 = slider2.get()
-    value3 = slider3.get()
-    value4 = slider4.get()
-    value5 = slider5.get()
-    value6 = slider6.get()
-    # sum the values
-    sum = value1 + value2 + value3 + value4 + value5 + value6
-    # create a label to show the sum
-    label_sum = tk.Label(window, text='The sum is: {}'.format(sum))
-    label_sum.pack()
+sliders = []
+for i, motor in enumerate(motors):
+        label = tk.Label(window, text=motor.name)
+        label.grid()
+        # slider
+        slider = tk.Scale(window, from_=motor.min, to=motor.max, orient=tk.HORIZONTAL)
+        slider.grid(row=i+1, column=1)
+        slider.set(motor.angle)
+        sliders.append(slider)
+        # button max
+        def partial_max(motor):
+            robot.move_motor(motor.name, motor.max)
+            slider.set(motor.max)
+        # create a button for min angle
+        def partial_min(motor):
+            robot.move_motor(motor.name, motor.min)
+            slider.set(motor.min)
+        # create a button for zero angle
+        def partial_zero(motor):
+            robot.move_motor(motor.name, 0)
+            slider.set(0)
 
-# bind the button to the function
-button.bind('<Button-1>', lambda event: sum())
-
-# run the window
+        #button max
+        button_max = tk.Button(window, text='max', command=lambda: partial_max(motor))
+        button_max.grid(row=i+1, column=2)
+        # button min
+        button_min = tk.Button(window, text='min', command=lambda: partial_min(motor))
+        button_min.grid(row=i+1, column=3)
+        # button mid
+        button_mid = tk.Button(window, text='mid', command=lambda: partial_zero(motor))
+        button_mid.grid(row=i+1, column=4)
+        
+# run the program
+    
+button_for_initialization()
+button_for_calibration()
 window.mainloop()
